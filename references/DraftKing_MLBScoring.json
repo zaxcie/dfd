@@ -1,0 +1,32 @@
+{"Hitters": {
+    "Single": 3,
+    "Double": 5,
+    "Triple": 8,
+    "Home Run": 10,
+    "Run Batted In": 2,
+    "Run": 2,
+    "Base on Balls": 2,
+    "Hit By Pitch": 2,
+    "Sacrifice Fly": 1.25,
+    "Sacrifice Hit": 1.25,
+    "Stolen Base": 5
+  },
+  "Pitchers": {
+    "Inning Pitched (SP)": 2.25,
+    "Inning Pitched (RP)": 3.9,
+    "Strikeout (SP)": 2,
+    "Strikeout (RP)": 3,
+    "Win": 4,
+    "Earned Run Allowed": -2,
+    "Hit Against": -0.6,
+    "Base on Balls Against": -0.6,
+    "Hit Batsman": -0.6,
+    "Hold": 2.5,
+    "Save": 5,
+    "Complete Game": 2.5,
+    "Complete Game Shutout": 2.5,
+    "No Hitter": 5,
+    "10+ Strikeouts": 2,
+    "7+ Innings Pitched": 1.25
+  }
+}
