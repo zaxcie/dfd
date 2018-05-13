@@ -65,6 +65,11 @@ FROM (SELECT a.* FROM TempAwayBatting AS a
 DROP TABLE tempawaybatting;
 DROP TABLE temphomebatting;
 
+SELECT to_date(SUBSTR(game_id, 1, 10), 'YYYY_MM_DD') AS date
+  FROM batting;
+
+ALTER TABLE public.batting ADD date DATE;
+UPDATE public.batting SET date = to_date(SUBSTR(game_id, 1, 10), 'YYYY_MM_DD');
 
 /*
 Pitching
@@ -107,6 +112,10 @@ SELECT b.* INTO Pitching
 FROM (SELECT a.* FROM TempAwayPitching AS a
   UNION
   SELECT h.* FROM TemphomePitching AS h) AS b;
+
+ALTER TABLE public.pitching ADD date DATE;
+UPDATE public.pitching SET date = to_date(SUBSTR(game_id, 1, 10), 'YYYY_MM_DD');
+
 
 DROP TABLE TempAwayPitching;
 DROP TABLE TemphomePitching;

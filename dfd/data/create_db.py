@@ -2,6 +2,8 @@ import csv
 import sqlite3
 import os
 import json
+import psycopg2
+import copy
 
 
 def format_col_for_create_table(cols):
@@ -47,10 +49,12 @@ def create_lahman_db(db_path, csv_path):
     con.close()
 
 
-def create_game_db(db_path, gamescore_path, player_stat_path):
+def create_game_db(db_path, gamescore_path, player_stat_path, gamnebox_path):
     with open(gamescore_path, "r") as f:
         gamescores = json.load(f)
-        gamescores = json.loads(gamescores)
+
+    with open(gamnebox_path, "r") as f:
+        gamebox = json.load(f)
 
     with open(player_stat_path, "r") as f:
         playerstats = json.load(f)
@@ -63,10 +67,12 @@ def create_game_db(db_path, gamescore_path, player_stat_path):
 
     con = sqlite3.connect(db_path)
     create_gamescore_table(con, gamescores)
-    for gamestat_cat in ["home_pitching", "away_pitching", "home_batting", "away_batting",
-                         "home_additional_pitching", "away_additional_pitching",
-                         "home_additional_batting", "away_additional_batting"]:
-        create_player_stats_table(con, playerstats, gamestat_cat, gamestat_cat)
+    # for gamestat_cat in ["home_pitching", "away_pitching", "home_batting", "away_batting",
+    #                      "home_additional_pitching", "away_additional_pitching",
+    #                      "home_additional_batting", "away_additional_batting"]:
+    #     create_player_stats_table(con, playerstats, gamestat_cat, gamestat_cat)
+
+    create_inning_table(con, gamebox)
     con.close()
 
 
@@ -94,6 +100,47 @@ def create_gamescore_table(con, gamescores):
             value_list.append(i.get(key, None))
 
         cur.execute("INSERT INTO GameScore VALUES " + format_values, value_list)
+
+    con.commit()
+
+
+def create_inning_table(con, gamebox):
+    cur = con.cursor()
+
+    gamebox_obj = list()
+
+    for i in gamebox:
+        gamebox_obj.append(json.loads(i))
+    gamebox = gamebox_obj
+
+    expand_gamebox = list()
+
+    for game in gamebox:
+        max_inning = int(game["innings"][0]["inning"])
+        final_inning = copy.copy(game["innings"][0])
+        final_inning["inning"] = "Final"
+
+        for inning in game["innings"]:
+            expand_inning = dict()
+            expand_inning['game_id'] = game["game_id"]
+            expand_inning["inning"] = int(inning["inning"])
+            expand_inning["home"] = inning["home"]
+            expand_inning["away"] = inning["away"]
+            expand_gamebox.append(expand_inning)
+
+    cols = create_dictkey_set(expand_gamebox)
+
+    format_cols, format_values = format_col_for_create_table(list(cols))
+    cur.execute('DROP TABLE if EXISTS GameBox')
+
+    cur.execute("CREATE TABLE GameBox " + format_cols + ";")
+
+    for i in gamebox:
+        value_list = list()
+        for key in cols:
+            value_list.append(i.get(key, None))
+
+        cur.execute("INSERT INTO GameBox VALUES " + format_values, value_list)
 
     con.commit()
 
@@ -132,5 +179,9 @@ def create_player_stats_table(con, gamestat, gamestat_cat, table_name):
 
 if __name__ == '__main__':
     create_game_db("data/processed/mlbgame.sqlite",
-                   "data/raw/GameScoreboard_2018-04-23.json",
-                   "data/raw/PlayerStats_2018-04-24.json")
+                   "data/processed/score.json",
+                   "data/processed/player.json",
+                   "data/processed/gamebox.json")
+
+    # create_lahman_db("/Users/kforest/workspace/dfd/data/processed/lahman-2017.sqlite",
+    #                  "/Users/kforest/workspace/dfd/data/raw/baseballdatabank-master/core/")
