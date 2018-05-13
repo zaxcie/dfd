@@ -1,0 +1,1 @@
+MLBGAME_DB = "postgresql://postgres:admin@localhost:5432/mlbgames"
