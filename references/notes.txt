@@ -1,0 +1,4 @@
+Useful website
+    https://www.retrosheet.org/
+    Lots of ressource and API - Baseball hack Day
+        https://github.com/baseballhackday/data-and-resources/wiki/Resources-and-ideas

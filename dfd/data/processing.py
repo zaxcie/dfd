@@ -39,5 +39,21 @@ def gamescore_process(gamescore):
         print(gamescore["date"].dt.year)
     return gamescore
 
+
+def get_batting(db_url=None):
+    if db_url is None:
+        engine = alch.create_engine(MLBGAME_DB)
+
+    else:
+        engine = alch.create_engine(db_url)
+
+    query = "SELECT batting.*, gamescore.date FROM batting INNER JOIN gamescore ON batting.game_id=gamescore.game_id"
+
+    batting = pd.read_sql_query(query, engine)
+    batting["date"] = pd.to_datetime(batting["date"])
+
+    return batting
+
+
 if __name__ == '__main__':
     gamescore = get_gamescore()
