@@ -6,3 +6,4 @@ sqlalchemy
 numpy
 pandas
 mlbgames
+tqdm
